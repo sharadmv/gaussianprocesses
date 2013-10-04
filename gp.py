@@ -62,9 +62,6 @@ class GP:
             noise = np.zeros((len(self.x), len(self.x)))
         self.kxx = self.gen_covmat(self.x, self.x) + noise
 
-def gen_rbf(l):
-    return lambda x, y, parameters: exp(-1/(2*l*l) * np.linalg.norm(x - y)**2)
-
 if __name__ == "__main__":
     from math import exp
     def m(x):
