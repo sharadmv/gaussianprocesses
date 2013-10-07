@@ -10,15 +10,13 @@ class Collection:
 
 class Kernel:
     def __init__(self, name, parameters={}):
-        self.name = name
-        self.parameters = parameters
         def rbf(x, y):
             l = 1
             if 'l' in parameters:
                 l = parameters['l']
-            return exp(-1/(2*l*l)*np.linalg.norm(x - y)**2)
+            return exp(-1.0/(2*l*l)*np.linalg.norm(x - y)**2)
         def dot(x, y):
-            return np.dot(x, y)
+            return np.dot(x, y)**2 + 1
         funcs = {
             'rbf' : rbf,
             'dot' : dot
@@ -30,14 +28,12 @@ class GP:
     def __init__(self, m, k, parameters={}):
         self.m = m
         self.k = k
-        self.x = []
-        self.y = []
+        self.num_points = 0
         self.parameters = parameters
 
     def sample(self, points, num=1):
         n = len(points)
-        self.points = points
-        if len(self.x) > 0:
+        if self.num_points > 0:
             kyy = self.gen_covmat(points, points)
             kyx = self.gen_covmat(points, self.x)
             kxy = self.gen_covmat(self.x, points)
@@ -56,6 +52,7 @@ class GP:
 
     def train(self, collection):
         self.x, self.y = collection.x, collection.y
+        self.num_points = len(self.x)
         if 'noise' in self.parameters:
             noise = np.identity(len(self.x)) * self.parameters['noise']
         else:
@@ -66,13 +63,13 @@ if __name__ == "__main__":
     from math import exp
     def m(x):
         return 0
-    gp = GP(m, Kernel('dot', parameters={'l' : 500}), parameters={
+    gp = GP(m, Kernel('rbf', parameters={'l' : 2}), parameters={
         "noise" : 0.01,
     })
     train = Collection([1, 2, 3, 4],[1, 4, 9, 16])
     #train = Collection([0],[0])
     gp.train(train)
-    x = np.arange(-5, 5, 0.05)
+    x = np.arange(-5, 10, 0.05)
     points = np.array(x)
     samples = gp.sample(points, 100)
     [pl.plot(x, samples[i]) for i in range(len(samples))]
