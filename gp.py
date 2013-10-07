@@ -16,7 +16,7 @@ class Kernel:
                 l = parameters['l']
             return exp(-1.0/(2*l*l)*np.linalg.norm(x - y)**2)
         def dot(x, y):
-            return np.dot(x, y)**2 + 1
+            return np.dot(x, y) + 1
         funcs = {
             'rbf' : rbf,
             'dot' : dot
